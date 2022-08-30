@@ -18,8 +18,8 @@ export class UserEntity {
   @Column()
   password: string;
 
-  // @Column({ default: false })
-  // isVerified: boolean;
+  @Column()
+  profilephoto: string;
 
   @BeforeInsert()
   async hashPassword() {

@@ -1,16 +1,19 @@
-import { IsString } from "class-validator";
+import { IsEmail, IsString, Matches } from 'class-validator';
 
-export class CreateUserDto{
+export const emailRegex: RegExp = /^\w+([\.+]*?\w+[\+]*)@\w+(\w+)(\.\w{2,3})+$/;
+export class CreateUserDto {
+  @Matches(emailRegex, {
+    message: 'invalid email',
+  })
+  @IsEmail()
+  email: string;
 
-    @IsString()
-    email:string;
+  @IsString()
+  name: string;
 
-    @IsString()
-    name:string;
+  @IsString()
+  gender: string;
 
-    @IsString()
-    gender:string;
-
-    @IsString()
-    password:string;
+  @IsString()
+  password: string;
 }
