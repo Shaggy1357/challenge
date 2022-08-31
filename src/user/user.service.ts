@@ -6,11 +6,15 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { UpdateUserDto } from '../dtos/UpdateUser.dto';
 import * as fs from 'fs';
-
+//import { ChangePassword } from '../dtos/changePassword.dto';
+import * as bcrypt from 'bcrypt';
+import { ChangePassword } from 'src/dtos/changePassword.dto';
+import { AddressBook } from '../entities/addressBook.entity';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
+    @InjectRepository(AddressBook) private addressRepo: Repository<AddressBook>,
     private mailerService: MailerService,
   ) {}
 
@@ -87,5 +91,32 @@ export class UserService {
     console.log(file);
 
     return this.userRepo.save(user);
+  }
+
+  async changePasswordUser(
+    changePassword: ChangePassword,
+    id: number,
+  ): Promise<UserEntity> {
+    const user = await this.userRepo.findOneBy({ id });
+    const currentPassword = changePassword.currentPassword;
+    const newPassword = await bcrypt.hash(changePassword.newPassword, 10);
+    const compare = await bcrypt.compare(currentPassword, user.password);
+    // console.log(compare);
+
+    if (!compare) {
+      // console.log(user.password);
+      throw new BadRequestException("Passwords don't match!");
+    }
+    user.password = newPassword;
+    console.log(user);
+    return this.userRepo.save(user);
+  }
+
+  async ADD(arr) {
+    console.log(arr);
+    for (let i = 0; i <= arr.length; i++) {
+      console.log(arr[i]);
+      return this.addressRepo.create(arr[i]);
+    }
   }
 }

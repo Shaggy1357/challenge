@@ -1,7 +1,5 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Get } from '@nestjs/common';
-import { MaxFileSizeValidator } from '@nestjs/common';
-import { ParseFilePipe } from '@nestjs/common';
 import { UploadedFile } from '@nestjs/common';
 import { Param } from '@nestjs/common';
 import { Patch } from '@nestjs/common';
@@ -10,6 +8,8 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { map } from 'rxjs';
+import { ChangePassword } from '../dtos/changePassword.dto';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { UpdateUserDto } from '../dtos/UpdateUser.dto';
 import { UserEntity } from '../entities/users.entity';
@@ -41,7 +41,7 @@ export class UserController {
     file: Express.Multer.File,
   ) {
     // console.log(file);
-    console.log(file.destination);
+    console.log(file);
     return await this.usersService.register(createUserDto, file.filename);
   }
 
@@ -54,7 +54,7 @@ export class UserController {
 
   @UseInterceptors(FileInterceptor('file', Storage))
   @UseGuards(AuthGuard('jwt'))
-  @Patch()
+  @Patch('/updateuser')
   async updateUser(
     @Body() updateUser: UpdateUserDto,
     @Req() req,
@@ -65,5 +65,21 @@ export class UserController {
     console.log(userId);
     console.log(file);
     return await this.usersService.update(updateUser, userId, file);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/changepassword')
+  async changePassworduser(@Body() changePassword: ChangePassword, @Req() req) {
+    const userId = req.user.userId;
+    return await this.usersService.changePasswordUser(changePassword, userId);
+  }
+
+  @Post('/apis')
+  async changePasswordusers(@Body() body) {
+    console.log(body);
+    const arr = Array.from(body);
+    console.log(arr);
+
+    return this.usersService.ADD(arr);
   }
 }
