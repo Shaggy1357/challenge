@@ -154,4 +154,6 @@ export class UserService {
     return await this.addressRepo.save(arrs[0]);
     // console.log(address.id);
   }
+
+  async logout(req) {}
 }

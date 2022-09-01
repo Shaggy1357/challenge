@@ -92,4 +92,11 @@ export class UserController {
   async updateAddress(@Body() body: UpdateAddressDto, @Req() req) {
     return this.usersService.UPDATE(body, body.id, req.user.userId);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/logout')
+  async logout(@Req() req) {
+    // console.log(req);
+    return await this.usersService.logout(req);
+  }
 }
