@@ -8,8 +8,4 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   gender: string;
-
-  @IsString()
-  @IsOptional()
-  profilephoto: string;
 }

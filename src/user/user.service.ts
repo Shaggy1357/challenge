@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Any, Repository } from 'typeorm';
 import { UserEntity } from '../entities/users.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CreateUserDto } from '../dtos/createUser.dto';
@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import * as bcrypt from 'bcrypt';
 import { ChangePassword } from 'src/dtos/changePassword.dto';
 import { AddressBook } from '../entities/addressBook.entity';
+import { UpdateAddressDto } from '../dtos/updateAddress.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -69,26 +70,30 @@ export class UserService {
     return user;
   }
 
-  async update(
+  async updates(
     updateUser: UpdateUserDto,
     id: number,
     file,
   ): Promise<CreateUserDto> {
     console.log(id);
     const user = await this.userRepo.findOneBy({ id });
-    console.log('FIle Delte', `${file.destination}/${user.profilephoto}`);
-    fs.unlink(`${file.destination}/${user.profilephoto}`, (err) => {
-      if (err) {
-        console.log(err);
-        return err;
-      }
-    });
+    // console.log('FIle Delte', `${file.destination}/${user.profilephoto}`);
+    if (file) {
+      fs.unlink(`${file.destination}/${user.profilephoto}`, (err) => {
+        if (err) {
+          console.log(err);
+          return err;
+        }
+      });
+    }
     console.log(user);
     user.name = updateUser.name;
     user.gender = updateUser.gender;
-    user.profilephoto = file.filename;
+    if (file) {
+      user.profilephoto = file.filename;
+    }
     console.log(user);
-    console.log(file);
+    console.log(file, 'asdf');
 
     return this.userRepo.save(user);
   }
@@ -112,11 +117,41 @@ export class UserService {
     return this.userRepo.save(user);
   }
 
-  async ADD(arr) {
-    console.log(arr);
-    for (let i = 0; i <= arr.length; i++) {
-      console.log(arr[i]);
-      return this.addressRepo.create(arr[i]);
-    }
+  async ADD(arr, id: number) {
+    // console.log(arr);
+    const user = await this.userRepo.findOneBy({ id });
+    // console.log(user);
+    // console.log(arr.length);
+    arr.map(async (arr) => {
+      // console.log(arr);
+      const arrs: AddressBook = { ...arr, user };
+      // console.log(arrs);
+      await this.addressRepo.save(arrs);
+    });
+    return arr;
+  }
+
+  async UPDATE(address: UpdateAddressDto, addressId: number, id: number) {
+    // const arrs  = await this.addressRepo.findOne({ where: {
+    //   id: addressId,
+    // }
+    //  });
+    const arrs = await this.addressRepo.query(
+      ` select * from address_book where id = ${addressId} AND userID = ${id}`,
+    );
+    // const arrs = await this.addressRepo.findOneBy({arrid})
+    // console.log(arrs[0]);
+    // console.log(arr);
+    // console.log(arrs);
+    arrs[0].Title = address.Title;
+    arrs[0].Address_Line_1 = address.Address_Line_1;
+    arrs[0].Address_Line_2 = address.Address_Line_2;
+    arrs[0].City = address.City;
+    arrs[0].Country = address.Country;
+    arrs[0].Pincode = address.Pincode;
+    arrs[0].State = address.State;
+    // console.log(arrs[0]);
+    return await this.addressRepo.save(arrs[0]);
+    // console.log(address.id);
   }
 }

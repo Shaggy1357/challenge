@@ -1,6 +1,7 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { Get } from '@nestjs/common';
 import { UploadedFile } from '@nestjs/common';
+import { ParseArrayPipe } from '@nestjs/common';
 import { Param } from '@nestjs/common';
 import { Patch } from '@nestjs/common';
 import { Req } from '@nestjs/common';
@@ -8,9 +9,10 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { map } from 'rxjs';
+import { addAddressDto } from '../dtos/AddAddress.dto';
 import { ChangePassword } from '../dtos/changePassword.dto';
 import { CreateUserDto } from '../dtos/createUser.dto';
+import { UpdateAddressDto } from '../dtos/updateAddress.dto';
 import { UpdateUserDto } from '../dtos/UpdateUser.dto';
 import { UserEntity } from '../entities/users.entity';
 import { UserService } from './user.service';
@@ -63,8 +65,8 @@ export class UserController {
     console.log(req.user.userEmail);
     const userId = req.user.userId;
     console.log(userId);
-    console.log(file);
-    return await this.usersService.update(updateUser, userId, file);
+    console.log(file, 'qwer');
+    return await this.usersService.updates(updateUser, userId, file);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -74,12 +76,20 @@ export class UserController {
     return await this.usersService.changePasswordUser(changePassword, userId);
   }
 
-  @Post('/apis')
-  async changePasswordusers(@Body() body) {
-    console.log(body);
-    const arr = Array.from(body);
-    console.log(arr);
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/AddMultipleAddress')
+  async AddMultipleAddress(
+    @Body(new ParseArrayPipe({ items: addAddressDto, whitelist: true }))
+    body: addAddressDto[],
+    @Req() req,
+  ) {
+    console.log('id', req.user.userId);
+    return await this.usersService.ADD(body, req.user.userId);
+  }
 
-    return this.usersService.ADD(arr);
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('/updateAddress')
+  async updateAddress(@Body() body: UpdateAddressDto, @Req() req) {
+    return this.usersService.UPDATE(body, body.id, req.user.userId);
   }
 }

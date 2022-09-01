@@ -1,6 +1,12 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { IsOptional } from 'class-validator';
+import { AddressBook } from './addressBook.entity';
 
 @Entity()
 export class UserEntity {
@@ -21,6 +27,9 @@ export class UserEntity {
 
   @Column()
   profilephoto: string;
+
+  @OneToMany(() => AddressBook, (address) => address.user /*{ cascade: true }*/)
+  addresses: AddressBook[];
 
   @BeforeInsert()
   async hashPassword() {
