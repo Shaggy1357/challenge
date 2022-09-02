@@ -7,6 +7,9 @@ import { UserEntity } from './entities/users.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './auth/auth.module';
 import { AddressBook } from './entities/addressBook.entity';
+import { RedisModule } from './redis/redis.module';
+import { JwtService } from '@nestjs/jwt';
+
 require('dotenv').config();
 
 @Module({
@@ -32,8 +35,10 @@ require('dotenv').config();
     }),
     UserModule,
     AuthModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
+  // exports: [],
 })
 export class AppModule {}

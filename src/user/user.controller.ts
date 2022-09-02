@@ -1,14 +1,20 @@
-import { UseGuards, UseInterceptors } from '@nestjs/common';
-import { Get } from '@nestjs/common';
-import { UploadedFile } from '@nestjs/common';
-import { ParseArrayPipe } from '@nestjs/common';
-import { Param } from '@nestjs/common';
-import { Patch } from '@nestjs/common';
-import { Req } from '@nestjs/common';
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  UseGuards,
+  UseInterceptors,
+  Get,
+  UploadedFile,
+  ParseArrayPipe,
+  Param,
+  Patch,
+  Req,
+  Body,
+  Controller,
+  Post,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { addAddressDto } from '../dtos/AddAddress.dto';
 import { ChangePassword } from '../dtos/changePassword.dto';
 import { CreateUserDto } from '../dtos/createUser.dto';
@@ -47,36 +53,38 @@ export class UserController {
     return await this.usersService.register(createUserDto, file.filename);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get(':email')
+  @UseGuards(JwtAuthGuard)
+  @Get()
   async findbyemail(@Param('email') email: string): Promise<UserEntity> {
     // console.log(req.user.userEmail);
     return await this.usersService.finByEmail(email);
   }
 
   @UseInterceptors(FileInterceptor('file', Storage))
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Patch('/updateuser')
   async updateUser(
     @Body() updateUser: UpdateUserDto,
     @Req() req,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    console.log(req.user.userEmail);
+    console.log('h', req.user.userEmail);
     const userId = req.user.userId;
     console.log(userId);
     console.log(file, 'qwer');
     return await this.usersService.updates(updateUser, userId, file);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Patch('/changepassword')
   async changePassworduser(@Body() changePassword: ChangePassword, @Req() req) {
+    // console.log('third---', req);
     const userId = req.user.userId;
+    // console.log('fourth---', userId);
     return await this.usersService.changePasswordUser(changePassword, userId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Post('/AddMultipleAddress')
   async AddMultipleAddress(
     @Body(new ParseArrayPipe({ items: addAddressDto, whitelist: true }))
@@ -87,16 +95,16 @@ export class UserController {
     return await this.usersService.ADD(body, req.user.userId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Patch('/updateAddress')
   async updateAddress(@Body() body: UpdateAddressDto, @Req() req) {
     return this.usersService.UPDATE(body, body.id, req.user.userId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Post('/logout')
+  @UseGuards(JwtAuthGuard)
+  @Get('/logout')
   async logout(@Req() req) {
-    // console.log(req);
+    // console.log('asdf', req.user);
     return await this.usersService.logout(req);
   }
 }

@@ -1,19 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Any, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/users.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CreateUserDto } from '../dtos/createUser.dto';
 import { UpdateUserDto } from '../dtos/UpdateUser.dto';
 import * as fs from 'fs';
-//import { ChangePassword } from '../dtos/changePassword.dto';
 import * as bcrypt from 'bcrypt';
 import { ChangePassword } from 'src/dtos/changePassword.dto';
 import { AddressBook } from '../entities/addressBook.entity';
 import { UpdateAddressDto } from '../dtos/updateAddress.dto';
+import { RedisService } from '../redis/redis.service';
+
 @Injectable()
 export class UserService {
   constructor(
+    private redisService: RedisService,
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
     @InjectRepository(AddressBook) private addressRepo: Repository<AddressBook>,
     private mailerService: MailerService,
@@ -155,5 +157,14 @@ export class UserService {
     // console.log(address.id);
   }
 
-  async logout(req) {}
+  async logout(req) {
+    console.log('asdf', req.rawHeaders[1]);
+    const tok = req.rawHeaders[1].split(' ');
+    // const tok1 = tok.split(' ');
+    const tok2 = tok[1];
+    console.log(tok2);
+    // console.log(tok);
+    // console.log(token);
+    await this.redisService.set('token', tok2);
+  }
 }

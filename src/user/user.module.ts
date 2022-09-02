@@ -4,11 +4,14 @@ import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/users.entity';
 import { AddressBook } from '../entities/addressBook.entity';
+import { RedisModule } from '../redis/redis.module';
+import { RedisService } from '../redis/redis.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, AddressBook])],
-  providers: [UserService],
+  imports: [TypeOrmModule.forFeature([UserEntity, AddressBook]), RedisModule],
+  providers: [UserService, RedisService, JwtService],
   controllers: [UserController],
-  exports: [UserService],
+  exports: [UserService, RedisService, JwtService],
 })
 export class UserModule {}

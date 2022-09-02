@@ -25,6 +25,11 @@ export class AuthService {
       userId: user.id,
       userEmail: user.email,
     };
-    return { access_token: this.jwtService.sign(payload, { expiresIn: '1d' }) };
+    return {
+      access_token: this.jwtService.sign(payload, {
+        expiresIn: '1d',
+        secret: process.env.JWT_SECRET,
+      }),
+    };
   }
 }
