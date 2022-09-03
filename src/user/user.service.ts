@@ -14,6 +14,7 @@ import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class UserService {
+  //Getting instances of redis, mailer and repositories.
   constructor(
     private redisService: RedisService,
     @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
@@ -21,11 +22,12 @@ export class UserService {
     private mailerService: MailerService,
   ) {}
 
+  //Registration
   async register(
     createUserDto: CreateUserDto,
     file: string,
   ): Promise<CreateUserDto> {
-    console.log('by', createUserDto.email);
+    //Checking if a user already exists.
     const user1 = await this.userRepo.findOne({
       where: {
         email: createUserDto.email,
@@ -34,14 +36,14 @@ export class UserService {
     if (user1) {
       throw new BadRequestException('User Already Exists!');
     }
-    // console.log('1');
 
+    //Creating a new user.
     const user = this.userRepo.create(createUserDto);
-    user.profilephoto = file;
-    // console.log('pf', hi);
-    // console.log(user.profilephoto);
-    // console.log(createUserDto.email);
-    console.log(user.email);
+    if (file) {
+      user.profilephoto = file;
+    }
+
+    //Sending a mail to user after successfull registration.
     this.mailerService
       .sendMail({
         to: user.email,
@@ -52,9 +54,12 @@ export class UserService {
       .catch((mailError) => {
         console.log('Mailer Error', mailError);
       });
+
+    //Saving the user in DB.
     return this.userRepo.save(user);
   }
 
+  //Helper function to find user by enterred email.
   async finByEmail(email: string): Promise<UserEntity> {
     const user = await this.userRepo.findOne({
       where: {
@@ -65,21 +70,22 @@ export class UserService {
       throw new BadRequestException('Email does not exist!');
     }
 
-    // console.log(user.profilephoto);
-
+    //Setting file path for local storage.
     user.profilephoto = `${process.env.file_path}${user.profilephoto}`;
 
     return user;
   }
 
+  //Update user function.
   async updates(
     updateUser: UpdateUserDto,
     id: number,
     file,
   ): Promise<CreateUserDto> {
-    console.log(id);
+    //Getting user details before updating.
     const user = await this.userRepo.findOneBy({ id });
-    // console.log('FIle Delte', `${file.destination}/${user.profilephoto}`);
+
+    //Deleting the previous file vefore saving new file.
     if (file) {
       fs.unlink(`${file.destination}/${user.profilephoto}`, (err) => {
         if (err) {
@@ -88,63 +94,61 @@ export class UserService {
         }
       });
     }
-    console.log(user);
     user.name = updateUser.name;
     user.gender = updateUser.gender;
     if (file) {
       user.profilephoto = file.filename;
     }
-    console.log(user);
-    console.log(file, 'asdf');
 
     return this.userRepo.save(user);
   }
 
+  //Change password function.
   async changePasswordUser(
     changePassword: ChangePassword,
     id: number,
   ): Promise<UserEntity> {
+    //Getting user details before changing password.
     const user = await this.userRepo.findOneBy({ id });
     const currentPassword = changePassword.currentPassword;
-    const newPassword = await bcrypt.hash(changePassword.newPassword, 10);
-    const compare = await bcrypt.compare(currentPassword, user.password);
-    // console.log(compare);
 
+    //Hashing the new entered password.
+    const newPassword = await bcrypt.hash(changePassword.newPassword, 10);
+
+    //Comparing the saved and entered password.
+    const compare = await bcrypt.compare(currentPassword, user.password);
     if (!compare) {
-      // console.log(user.password);
       throw new BadRequestException("Passwords don't match!");
     }
+
+    //saving the new password after comparison
     user.password = newPassword;
-    console.log(user);
+
+    //Saving the password.
     return this.userRepo.save(user);
   }
 
+  //Address adding function.
   async ADD(arr, id: number) {
-    // console.log(arr);
+    //Getting user details(id) to link the address.
     const user = await this.userRepo.findOneBy({ id });
-    // console.log(user);
-    // console.log(arr.length);
+
+    //Saving address.
     arr.map(async (arr) => {
-      // console.log(arr);
       const arrs: AddressBook = { ...arr, user };
-      // console.log(arrs);
       await this.addressRepo.save(arrs);
     });
     return arr;
   }
 
+  //Update address function.
   async UPDATE(address: UpdateAddressDto, addressId: number, id: number) {
-    // const arrs  = await this.addressRepo.findOne({ where: {
-    //   id: addressId,
-    // }
-    //  });
+    //Finding particular address updated by the user
     const arrs = await this.addressRepo.query(
       ` select * from address_book where id = ${addressId} AND userID = ${id}`,
     );
-    // const arrs = await this.addressRepo.findOneBy({arrid})
-    // console.log(arrs[0]);
-    // console.log(arr);
-    // console.log(arrs);
+
+    //Making changes.
     arrs[0].Title = address.Title;
     arrs[0].Address_Line_1 = address.Address_Line_1;
     arrs[0].Address_Line_2 = address.Address_Line_2;
@@ -152,19 +156,18 @@ export class UserService {
     arrs[0].Country = address.Country;
     arrs[0].Pincode = address.Pincode;
     arrs[0].State = address.State;
-    // console.log(arrs[0]);
+
+    //Saving changes.
     return await this.addressRepo.save(arrs[0]);
-    // console.log(address.id);
   }
 
+  //Logout function.
   async logout(req) {
-    console.log('asdf', req.rawHeaders[1]);
+    //Getting existing signed token from request.
     const tok = req.rawHeaders[1].split(' ');
-    // const tok1 = tok.split(' ');
     const tok2 = tok[1];
-    console.log(tok2);
-    // console.log(tok);
-    // console.log(token);
+
+    //Saving token in redis.
     await this.redisService.set('token', tok2);
   }
 }
