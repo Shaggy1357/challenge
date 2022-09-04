@@ -39,9 +39,8 @@ export class UserService {
 
     //Creating a new user.
     const user = this.userRepo.create(createUserDto);
-    if (file) {
-      user.profilephoto = file;
-    }
+
+    user.profilephoto = file;
 
     //Sending a mail to user after successfull registration.
     this.mailerService
