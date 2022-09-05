@@ -11,7 +11,7 @@ export class RedisService {
 
   async set(key, value) {
     // console.log(key, value);
-    return await this.cacheManager.set(key, value, { ttl: 1000 });
+    return await this.cacheManager.set(key, value, { ttl: 86400 });
   }
 
   async reset() {
