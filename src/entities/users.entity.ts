@@ -7,13 +7,14 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddressBook } from './addressBook.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -23,6 +24,7 @@ export class UserEntity {
   gender: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Column()
@@ -38,5 +40,9 @@ export class UserEntity {
 
   async validatepassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
+  }
+
+  constructor(partial: Partial<UserEntity>) {
+    Object.assign(this, partial);
   }
 }

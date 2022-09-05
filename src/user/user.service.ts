@@ -55,7 +55,8 @@ export class UserService {
       });
 
     //Saving the user in DB.
-    return this.userRepo.save(user);
+    await this.userRepo.save(user);
+    return user;
   }
 
   //Helper function to find user by enterred email.

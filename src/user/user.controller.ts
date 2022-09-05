@@ -10,6 +10,7 @@ import {
   Body,
   Controller,
   Post,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -43,6 +44,7 @@ export class UserController {
   //Using interceptors for fetching files
 
   //Registration api
+  @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(FileInterceptor('file', Storage))
   @Post('/register')
   async register(
@@ -62,6 +64,7 @@ export class UserController {
   }
 
   //Update user api
+  @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(FileInterceptor('file', Storage))
   @UseGuards(JwtAuthGuard)
   @Patch('/updateuser')
@@ -75,6 +78,7 @@ export class UserController {
   }
 
   //Change Password api
+  @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
   @Patch('/changepassword')
   async changePassworduser(@Body() changePassword: ChangePassword, @Req() req) {
