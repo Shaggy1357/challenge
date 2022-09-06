@@ -29,10 +29,7 @@ export const Storage = {
     filename: (req, file, cb) => {
       const filename: string = file.originalname;
       const fileName: string = filename.replace(/\s/g, '');
-      // console.log(fileName);
       const extention: string[] = fileName.split('.');
-      // console.log(extention);
-      //const Extention: string = extention[1];
       cb(null, `${extention[0]}${new Date().getTime()}.${extention[1]}`);
     },
   }),
@@ -42,7 +39,6 @@ export class UserController {
   constructor(private usersService: UserService) {}
 
   //Using interceptors for fetching files
-
   //Registration api
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(FileInterceptor('file', Storage))
@@ -51,7 +47,7 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFile()
     file: Express.Multer.File,
-  ) {
+  ): Promise<CreateUserDto> {
     return await this.usersService.register(createUserDto, file.filename);
   }
 

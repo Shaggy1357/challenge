@@ -3,11 +3,13 @@ import {
   Column,
   Entity,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddressBook } from './addressBook.entity';
 import { Exclude } from 'class-transformer';
+import { BlackList } from './blacklist.entity';
 
 @Entity()
 export class UserEntity {
