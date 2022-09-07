@@ -26,10 +26,9 @@ export class UserService {
   //Registration
   async register(
     createUserDto: CreateUserDto,
-    file: string,
+    file: Express.Multer.File,
   ): Promise<CreateUserDto> {
     //Checking if a user already exists.
-
     const user1 = await this.userRepo.findOne({
       where: {
         email: createUserDto.email,
@@ -40,7 +39,9 @@ export class UserService {
     }
     //Creating a new user.
     const user = this.userRepo.create(createUserDto);
-    user.profilephoto = file;
+    if (file) {
+      user.profilephoto = file.filename;
+    }
     //Sending a mail to user after successfull registration.
     this.mailerService
       .sendMail({

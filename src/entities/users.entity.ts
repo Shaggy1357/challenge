@@ -3,13 +3,11 @@ import {
   Column,
   Entity,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddressBook } from './addressBook.entity';
 import { Exclude } from 'class-transformer';
-import { BlackList } from './blacklist.entity';
 
 @Entity()
 export class UserEntity {
@@ -29,7 +27,7 @@ export class UserEntity {
   @Exclude()
   password: string;
 
-  @Column()
+  @Column({ default: null })
   profilephoto: string;
 
   @OneToMany(() => AddressBook, (address) => address.user /*{ cascade: true }*/)

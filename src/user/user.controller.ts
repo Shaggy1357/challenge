@@ -48,7 +48,7 @@ export class UserController {
     @UploadedFile()
     file: Express.Multer.File,
   ): Promise<CreateUserDto> {
-    return await this.usersService.register(createUserDto, file.filename);
+    return await this.usersService.register(createUserDto, file);
   }
 
   //Using custom auth guard for jwt validation and invalidation.
