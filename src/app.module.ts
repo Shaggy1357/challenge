@@ -35,7 +35,7 @@ require('dotenv').config();
     }),
     UserModule,
     AuthModule,
-    RedisModule,
+    /*RedisModule,*/
   ],
   controllers: [AppController],
   providers: [AppService],
