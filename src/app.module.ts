@@ -7,13 +7,15 @@ import { UserEntity } from './entities/users.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './auth/auth.module';
 import { AddressBook } from './entities/addressBook.entity';
-import { RedisModule } from './redis/redis.module';
+// import { RedisModule } from './redis/redis.module';
 import { BlackList } from './entities/blacklist.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 require('dotenv').config();
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     MailerModule.forRoot({
       transport: {
         host: process.env.MAIL_HOST,

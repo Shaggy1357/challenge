@@ -11,6 +11,7 @@ import { ChangePassword } from 'src/dtos/changePassword.dto';
 import { AddressBook } from '../entities/addressBook.entity';
 import { UpdateAddressDto } from '../dtos/updateAddress.dto';
 import { BlackList } from '../entities/blacklist.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
 // import { RedisService } from '../redis/redis.service';
 @Injectable()
 export class UserService {
@@ -22,6 +23,11 @@ export class UserService {
     @InjectRepository(BlackList) private blackListRepo: Repository<BlackList>,
     private mailerService: MailerService,
   ) {}
+
+  @Cron(CronExpression.EVERY_QUARTER)
+  deleteBlackList() {
+    this.blackListRepo.query(`DELETE FROM black_list`);
+  }
 
   //Registration
   async register(
