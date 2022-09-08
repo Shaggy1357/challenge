@@ -7,8 +7,8 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddressBook } from './addressBook.entity';
-import { Exclude } from 'class-transformer';
-
+import { Exclude, Expose } from 'class-transformer';
+export const PROFILE_USER = 'profile_user_details';
 @Entity()
 export class UserEntity {
   @PrimaryGeneratedColumn()

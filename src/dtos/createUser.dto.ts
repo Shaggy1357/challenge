@@ -4,6 +4,7 @@ import {
   MaxLength,
   Matches,
   MinLength,
+  IsIn,
 } from 'class-validator';
 
 export const emailRegex: RegExp = /^\w+([\.+]*?\w+[\+]*)@\w+(\w+)(\.\w{2,3})+$/;
@@ -18,6 +19,7 @@ export class CreateUserDto {
   name: string;
 
   @IsString()
+  @IsIn(['Male', 'male', 'Female', 'female', 'By-Sexual', 'by-sexual'])
   gender: string;
 
   @IsString()

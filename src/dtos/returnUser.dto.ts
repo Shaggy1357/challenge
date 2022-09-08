@@ -1,5 +1,4 @@
-import { Exclude } from 'class-transformer';
-import { IsEmail, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 
 export class ReturnUserDto {
   @IsEmail()
@@ -15,10 +14,5 @@ export class ReturnUserDto {
   profilephoto: string;
 
   @IsString()
-  // @Exclude()
   password: string;
-
-  // constructor(partial: Partial<ReturnUserDto>) {
-  //   Object.assign(this, partial);
-  // }
 }

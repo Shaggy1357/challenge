@@ -11,6 +11,7 @@ import {
   Controller,
   Post,
   ClassSerializerInterceptor,
+  SerializeOptions,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -51,12 +52,14 @@ export class UserController {
     return await this.usersService.register(createUserDto, file);
   }
 
-  //Using custom auth guard for jwt validation and invalidation.
-  //Helper function to find users with entered email.
+  // Using custom auth guard for jwt validation and invalidation.
+  // Helper function to find users with entered email.
+  @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
-  @Get()
-  async findbyemail(@Param('email') email: string): Promise<UserEntity> {
-    return await this.usersService.finByEmail(email);
+  @Get('/find-by-email/:findUser')
+  // @SerializeOptions({})
+  async findbyemail(@Param('findUser') findUser: string): Promise<UserEntity> {
+    return await this.usersService.findByEmail(findUser);
   }
 
   //Update user api

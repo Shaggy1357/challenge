@@ -35,23 +35,23 @@ export class UserService {
     file: Express.Multer.File,
   ): Promise<CreateUserDto> {
     //Checking if a user already exists.
-    const user1 = await this.userRepo.findOne({
+    const existingUser = await this.userRepo.findOne({
       where: {
         email: createUserDto.email,
       },
     });
-    if (user1) {
+    if (existingUser) {
       throw new BadRequestException('User Already Exists!');
     }
     //Creating a new user.
-    const user = this.userRepo.create(createUserDto);
+    const newUser = this.userRepo.create(createUserDto);
     if (file) {
-      user.profilephoto = file.filename;
+      newUser.profilephoto = file.filename;
     }
     //Sending a mail to user after successfull registration.
     this.mailerService
       .sendMail({
-        to: user.email,
+        to: newUser.email,
         from: 'pawan.bansari@creolestudios.com',
         subject: 'Registration successfull',
         text: 'Thanks for registring with us!',
@@ -60,44 +60,46 @@ export class UserService {
         console.log('Mailer Error', mailError);
       });
     //Saving the user in DB.
-    await this.userRepo.save(user);
-    return user;
+    await this.userRepo.save(newUser);
+    return newUser;
   }
 
   //Helper function to find user by enterred email.
-  async finByEmail(email: string): Promise<UserEntity> {
-    const user = await this.userRepo.findOne({
+  async findByEmail(email: string): Promise<UserEntity> {
+    const existingUser = await this.userRepo.findOne({
       where: {
         email: email,
       },
     });
-    if (!user) {
-      throw new BadRequestException('Email does not exist!');
+    if (!existingUser) {
+      throw new BadRequestException('User does not exist!');
     }
     //Setting file path for local storage.
-    user.profilephoto = `${process.env.file_path}${user.profilephoto}`;
-    return user;
+    existingUser.profilephoto = `${process.env.file_path}${existingUser.profilephoto}`;
+    return existingUser;
   }
 
   //Update user function.
   async updates(updateUser: UpdateUserDto, id: number, file) {
     //Getting user details before updating.
-    const user = await this.userRepo.findOneBy({ id });
+    const existingUser = await this.userRepo.findOneBy({ id });
     //Deleting the previous file vefore saving new file.
     if (file) {
-      fs.unlink(`${file.destination}/${user.profilephoto}`, (err) => {
+      fs.unlink(`${file.destination}/${existingUser.profilephoto}`, (err) => {
         if (err) {
           console.log(err);
           return err;
         }
       });
     }
-    user.name = updateUser.name;
-    user.gender = updateUser.gender;
+    existingUser.name = updateUser?.name ? updateUser.name : existingUser.name;
+    existingUser.gender = updateUser?.gender
+      ? updateUser.gender
+      : existingUser.gender;
     if (file) {
-      user.profilephoto = file.filename;
+      existingUser.profilephoto = file.filename;
     }
-    return this.userRepo.save(user);
+    return this.userRepo.save(existingUser);
   }
 
   //Change password function.

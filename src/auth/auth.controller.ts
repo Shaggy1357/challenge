@@ -9,9 +9,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   //Handles login routes.
-
   //Send user details in the form of a DTO to the auth service.
-
   @Post('/login')
   async login(@Body() authLoginDto: AuthLoginDto) {
     return await this.authService.login(authLoginDto);
