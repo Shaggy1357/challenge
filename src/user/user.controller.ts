@@ -6,7 +6,6 @@ import {
   ParseArrayPipe,
   Param,
   Patch,
-  Req,
   Body,
   Controller,
   Post,
