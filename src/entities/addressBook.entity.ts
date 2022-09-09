@@ -1,6 +1,6 @@
 import { IsNumber, IsString } from 'class-validator';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { UserEntity } from './users.entity';
+import { Users } from './users.entity';
 
 @Entity()
 export class AddressBook {
@@ -35,6 +35,6 @@ export class AddressBook {
   @IsNumber()
   Pincode: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.addresses)
-  user: UserEntity;
+  @ManyToOne(() => Users, (user) => user.addresses)
+  user: Users;
 }

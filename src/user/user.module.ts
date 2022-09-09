@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '../entities/users.entity';
+import { Users } from '../entities/users.entity';
 import { AddressBook } from '../entities/addressBook.entity';
 // import { RedisModule } from '../redis/redis.module';
 // import { RedisService } from '../redis/redis.service';
@@ -11,11 +11,7 @@ import { BlackList } from '../entities/blacklist.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      UserEntity,
-      AddressBook,
-      BlackList,
-    ]) /*RedisModule*/,
+    TypeOrmModule.forFeature([Users, AddressBook, BlackList]) /*RedisModule*/,
   ],
   providers: [UserService /*RedisService*/, JwtService],
   controllers: [UserController],

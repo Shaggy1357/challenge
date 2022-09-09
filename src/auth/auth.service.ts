@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AuthLoginDto } from '../dtos/AuthLogin.dto';
-import { UserEntity } from '../entities/users.entity';
+import { AuthLogin } from '../dtos/AuthLogin.dto';
+import { Users } from '../entities/users.entity';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class AuthService {
   ) {}
 
   //Validates users by comparing their saved passwords and entered passwords.
-  async validateUser(authLoginDto: AuthLoginDto): Promise<UserEntity> {
+  async validateUser(authLoginDto: AuthLogin): Promise<Users> {
     //Finding for existing users with entered email.
     const user = await this.userService.findByEmail(authLoginDto.email);
     //Comparing passwords.
@@ -22,7 +22,7 @@ export class AuthService {
     //Returning user.
     return user;
   }
-  async login(authLoginDto: AuthLoginDto) {
+  async login(authLoginDto: AuthLogin) {
     const user = await this.validateUser(authLoginDto);
     //Defining payload for jwt token generation.
     const payload = {

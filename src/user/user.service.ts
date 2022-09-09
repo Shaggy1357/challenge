@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserEntity } from '../entities/users.entity';
+import { Users } from '../entities/users.entity';
 import { MailerService } from '@nestjs-modules/mailer';
-import { CreateUserDto } from '../dtos/createUser.dto';
-import { UpdateUserDto } from '../dtos/UpdateUser.dto';
+import { CreateUser } from '../dtos/createUser.dto';
+import { UpdateUser } from '../dtos/UpdateUser.dto';
 import * as fs from 'fs';
 import * as bcrypt from 'bcrypt';
 import { ChangePassword } from 'src/dtos/changePassword.dto';
 import { AddressBook } from '../entities/addressBook.entity';
-import { UpdateAddressDto } from '../dtos/updateAddress.dto';
+import { UpdateAddress } from '../dtos/updateAddress.dto';
 import { BlackList } from '../entities/blacklist.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 // import { RedisService } from '../redis/redis.service';
@@ -18,7 +18,7 @@ export class UserService {
   //Getting instances of redis, mailer and repositories.
   constructor(
     // private redisService: RedisService,
-    @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
+    @InjectRepository(Users) private userRepo: Repository<Users>,
     @InjectRepository(AddressBook) private addressRepo: Repository<AddressBook>,
     @InjectRepository(BlackList) private blackListRepo: Repository<BlackList>,
     private mailerService: MailerService,
@@ -31,9 +31,9 @@ export class UserService {
 
   //Registration
   async register(
-    createUserDto: CreateUserDto,
+    createUserDto: CreateUser,
     file: Express.Multer.File,
-  ): Promise<CreateUserDto> {
+  ): Promise<CreateUser> {
     //Checking if a user already exists.
     const existingUser = await this.userRepo.findOne({
       where: {
@@ -65,7 +65,7 @@ export class UserService {
   }
 
   //Helper function to find user by enterred email.
-  async findByEmail(email: string): Promise<UserEntity> {
+  async findByEmail(email: string): Promise<Users> {
     const existingUser = await this.userRepo.findOne({
       where: {
         email: email,
@@ -80,7 +80,7 @@ export class UserService {
   }
 
   //Update user function.
-  async updates(updateUser: UpdateUserDto, id: number, file) {
+  async updates(updateUser: UpdateUser, id: number, file) {
     //Getting user details before updating.
     const existingUser = await this.userRepo.findOneBy({ id });
     //Deleting the previous file vefore saving new file.
@@ -106,7 +106,7 @@ export class UserService {
   async changePasswordUser(
     changePassword: ChangePassword,
     id: number,
-  ): Promise<UserEntity> {
+  ): Promise<Users> {
     //Getting user details before changing password.
     const user = await this.userRepo.findOneBy({ id });
     const currentPassword = changePassword.currentPassword;
@@ -136,7 +136,7 @@ export class UserService {
   }
 
   //Update address function.
-  async UPDATE(address: UpdateAddressDto, addressId: number, userid: number) {
+  async UPDATE(address: UpdateAddress, addressId: number, userid: number) {
     //Finding particular address updated by the user
     const arrs = await this.addressRepo.query(
       ` select * from address_book where id = ${addressId} AND userID = ${userid}`,

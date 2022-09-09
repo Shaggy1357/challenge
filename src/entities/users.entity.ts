@@ -7,10 +7,10 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddressBook } from './addressBook.entity';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 export const PROFILE_USER = 'profile_user_details';
 @Entity()
-export class UserEntity {
+export class Users {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -42,7 +42,7 @@ export class UserEntity {
     return await bcrypt.compare(password, this.password);
   }
 
-  constructor(partial: Partial<UserEntity>) {
+  constructor(partial: Partial<Users>) {
     Object.assign(this, partial);
   }
 }

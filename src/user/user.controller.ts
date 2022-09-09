@@ -16,12 +16,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { User } from '../decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { addAddressDto } from '../dtos/AddAddress.dto';
+import { addAddress } from '../dtos/AddAddress.dto';
 import { ChangePassword } from '../dtos/changePassword.dto';
-import { CreateUserDto } from '../dtos/createUser.dto';
-import { UpdateAddressDto } from '../dtos/updateAddress.dto';
-import { UpdateUserDto } from '../dtos/UpdateUser.dto';
-import { UserEntity } from '../entities/users.entity';
+import { CreateUser } from '../dtos/createUser.dto';
+import { UpdateAddress } from '../dtos/updateAddress.dto';
+import { UpdateUser } from '../dtos/UpdateUser.dto';
+import { Users } from '../entities/users.entity';
 import { UserService } from './user.service';
 import { Jwt } from '../decorators/jwt.decorator';
 
@@ -46,10 +46,10 @@ export class UserController {
   @UseInterceptors(FileInterceptor('file', Storage))
   @Post('/register')
   async register(
-    @Body() createUserDto: CreateUserDto,
+    @Body() createUserDto: CreateUser,
     @UploadedFile()
     file: Express.Multer.File,
-  ): Promise<CreateUserDto> {
+  ): Promise<CreateUser> {
     return await this.usersService.register(createUserDto, file);
   }
 
@@ -59,7 +59,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('/find-by-email/:findUser')
   // @SerializeOptions({})
-  async findbyemail(@Param('findUser') findUser: string): Promise<UserEntity> {
+  async findbyemail(@Param('findUser') findUser: string): Promise<Users> {
     return await this.usersService.findByEmail(findUser);
   }
 
@@ -69,7 +69,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Patch('/updateuser')
   async updateUser(
-    @Body() updateUser: UpdateUserDto,
+    @Body() updateUser: UpdateUser,
     @User() user,
     @UploadedFile() file: Express.Multer.File,
   ) {
@@ -93,8 +93,8 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Post('/AddMultipleAddress')
   async AddMultipleAddress(
-    @Body(new ParseArrayPipe({ items: addAddressDto, whitelist: true }))
-    body: addAddressDto[],
+    @Body(new ParseArrayPipe({ items: addAddress, whitelist: true }))
+    body: addAddress[],
     @User() user,
   ) {
     return await this.usersService.ADD(body, user.userId);
@@ -103,7 +103,7 @@ export class UserController {
   //Updating a single address at once api
   @UseGuards(JwtAuthGuard)
   @Patch('/updateAddress')
-  async updateAddress(@Body() body: UpdateAddressDto, @User() user) {
+  async updateAddress(@Body() body: UpdateAddress, @User() user) {
     return this.usersService.UPDATE(body, body.id, user.userId);
   }
 

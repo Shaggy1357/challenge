@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export const emailRegex: RegExp = /^\w+([\.+]*?\w+[\+]*)@\w+(\w+)(\.\w{2,3})+$/;
-export class CreateUserDto {
+export class CreateUser {
   @Matches(emailRegex, {
     message: 'invalid email',
   })
