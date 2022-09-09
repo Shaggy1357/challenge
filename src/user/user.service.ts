@@ -136,10 +136,10 @@ export class UserService {
   }
 
   //Update address function.
-  async UPDATE(address: UpdateAddressDto, addressId: number, id: number) {
+  async UPDATE(address: UpdateAddressDto, addressId: number, userid: number) {
     //Finding particular address updated by the user
     const arrs = await this.addressRepo.query(
-      ` select * from address_book where id = ${addressId} AND userID = ${id}`,
+      ` select * from address_book where id = ${addressId} AND userID = ${userid}`,
     );
     //Making changes.
     arrs[0].Title = address.Title;
@@ -154,14 +154,14 @@ export class UserService {
   }
 
   //Logout function.
-  async logout(req) {
+  async logout(user, jwt) {
     //Getting existing signed token from request.
-    const tok = req.rawHeaders[1].split(' ');
-    const tok2 = tok[1];
-    const userId = req.user.userId;
+    // const tok = req.rawHeaders[1].split(' ');
+    // const tok2 = tok[1];
+    const userId = user.userId;
     //Saving token in DB.
     await this.blackListRepo.save({
-      token: tok2,
+      token: jwt,
       userId,
     });
   }

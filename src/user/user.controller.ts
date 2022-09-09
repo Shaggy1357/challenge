@@ -11,10 +11,10 @@ import {
   Controller,
   Post,
   ClassSerializerInterceptor,
-  SerializeOptions,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { User } from '../decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { addAddressDto } from '../dtos/AddAddress.dto';
 import { ChangePassword } from '../dtos/changePassword.dto';
@@ -23,6 +23,7 @@ import { UpdateAddressDto } from '../dtos/updateAddress.dto';
 import { UpdateUserDto } from '../dtos/UpdateUser.dto';
 import { UserEntity } from '../entities/users.entity';
 import { UserService } from './user.service';
+import { Jwt } from '../decorators/jwt.decorator';
 
 export const Storage = {
   storage: diskStorage({
@@ -69,10 +70,10 @@ export class UserController {
   @Patch('/updateuser')
   async updateUser(
     @Body() updateUser: UpdateUserDto,
-    @Req() req,
+    @User() user,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const userId = req.user.userId;
+    const userId = user.userId;
     return await this.usersService.updates(updateUser, userId, file);
   }
 
@@ -80,8 +81,11 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(JwtAuthGuard)
   @Patch('/changepassword')
-  async changePassworduser(@Body() changePassword: ChangePassword, @Req() req) {
-    const userId = req.user.userId;
+  async changePassworduser(
+    @Body() changePassword: ChangePassword,
+    @User() user,
+  ) {
+    const userId = user.userId;
     return await this.usersService.changePasswordUser(changePassword, userId);
   }
 
@@ -91,22 +95,22 @@ export class UserController {
   async AddMultipleAddress(
     @Body(new ParseArrayPipe({ items: addAddressDto, whitelist: true }))
     body: addAddressDto[],
-    @Req() req,
+    @User() user,
   ) {
-    return await this.usersService.ADD(body, req.user.userId);
+    return await this.usersService.ADD(body, user.userId);
   }
 
   //Updating a single address at once api
   @UseGuards(JwtAuthGuard)
   @Patch('/updateAddress')
-  async updateAddress(@Body() body: UpdateAddressDto, @Req() req) {
-    return this.usersService.UPDATE(body, body.id, req.user.userId);
+  async updateAddress(@Body() body: UpdateAddressDto, @User() user) {
+    return this.usersService.UPDATE(body, body.id, user.userId);
   }
 
   //logout api
   @UseGuards(JwtAuthGuard)
   @Get('/logout')
-  async logout(@Req() req) {
-    return await this.usersService.logout(req);
+  async logout(@User() user, @Jwt() jwt) {
+    return await this.usersService.logout(user, jwt);
   }
 }

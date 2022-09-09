@@ -6,6 +6,7 @@ import { ExtractJwt } from 'passport-jwt';
 // import { RedisService } from '../redis/redis.service';
 import { UserService } from '../user/user.service';
 require('dotenv').config();
+
 //Creating custom guard using passport jwt.
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
