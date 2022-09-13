@@ -12,6 +12,7 @@ import { AddressBook } from '../entities/addressBook.entity';
 import { UpdateAddress } from '../dtos/updateAddress.dto';
 import { BlackList } from '../entities/blacklist.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import moment from 'moment';
 // import { RedisService } from '../redis/redis.service';
 @Injectable()
 export class UserService {
@@ -48,6 +49,9 @@ export class UserService {
     if (file) {
       newUser.profilephoto = file.filename;
     }
+    const m = moment();
+    console.log(m);
+    // newUser.createdAt = moment.()
     //Sending a mail to user after successfull registration.
     this.mailerService
       .sendMail({

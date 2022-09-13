@@ -23,7 +23,6 @@ import { UpdateUser } from '../dtos/UpdateUser.dto';
 import { Users } from '../entities/users.entity';
 import { UserService } from './user.service';
 import { Jwt } from '../decorators/jwt.decorator';
-import { ErrorsInterceptor } from '../interceptors/errors.interceptor';
 
 export const Storage = {
   storage: diskStorage({
