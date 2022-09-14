@@ -1,14 +1,16 @@
 import {
   BeforeInsert,
   Column,
+  CreateDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  Timestamp,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { AddressBook } from './addressBook.entity';
 import { Exclude } from 'class-transformer';
-import { IsDate } from 'class-validator';
+// import { IsDate } from 'class-validator';
 export const PROFILE_USER = 'profile_user_details';
 @Entity()
 export class Users {
@@ -32,8 +34,11 @@ export class Users {
   profilephoto: string;
 
   // @Column()
+  // created_at_date: Date;
+
+  @CreateDateColumn()
   // @IsDate()
-  // createdAt: Date;
+  created_at: Date;
 
   @OneToMany(() => AddressBook, (address) => address.user /*{ cascade: true }*/)
   addresses: AddressBook[];

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 import { Users } from '../entities/users.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CreateUser } from '../dtos/createUser.dto';
@@ -12,7 +12,10 @@ import { AddressBook } from '../entities/addressBook.entity';
 import { UpdateAddress } from '../dtos/updateAddress.dto';
 import { BlackList } from '../entities/blacklist.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import moment from 'moment';
+// var moment = require('moment');
+import 'moment-timezone';
+import * as moment from 'moment';
+
 // import { RedisService } from '../redis/redis.service';
 @Injectable()
 export class UserService {
@@ -35,24 +38,37 @@ export class UserService {
     createUserDto: CreateUser,
     file: Express.Multer.File,
   ): Promise<CreateUser> {
+    // try {
     //Checking if a user already exists.
+    // console.log('second');
     const existingUser = await this.userRepo.findOne({
       where: {
         email: createUserDto.email,
       },
     });
+    // console.log('third', existingUser);
+
     if (existingUser) {
+      // console.log('fourth');
       throw new BadRequestException('User Already Exists!');
     }
     //Creating a new user.
+    // console.log('fifth');
+
     const newUser = this.userRepo.create(createUserDto);
+    // console.log('fifth', newUser);
+
     if (file) {
+      // console.log('sixth');
       newUser.profilephoto = file.filename;
     }
-    const m = moment();
-    console.log(m);
-    // newUser.createdAt = moment.()
-    //Sending a mail to user after successfull registration.
+
+    const m = moment().toDate();
+    console.log('first', m);
+    console.log('second', typeof m);
+
+    // newUser.created_at_date = m.toDateString();
+    // Sending a mail to user after successfull registration.
     this.mailerService
       .sendMail({
         to: newUser.email,
@@ -63,9 +79,13 @@ export class UserService {
       .catch((mailError) => {
         console.log('Mailer Error', mailError);
       });
-    //Saving the user in DB.
+    // //Saving the user in DB.
     await this.userRepo.save(newUser);
+    // console.log('second');
     return newUser;
+    // } catch (error) {
+    //   console.log(error);
+    // }
   }
 
   //Helper function to find user by enterred email.
@@ -80,6 +100,29 @@ export class UserService {
     }
     //Setting file path for local storage.
     existingUser.profilephoto = `${process.env.file_path}${existingUser.profilephoto}`;
+    return existingUser;
+  }
+
+  //Helper function to find user by date.
+  async findbydate(doc: Date): Promise<Users[]> {
+    // console.log('first', doc);
+
+    // console.log('second', typeof doc);
+
+    const doa = moment(doc).tz('Asia/Kolkata');
+    console.log('third', doa);
+
+    const dod = doa.format('YYYY-MM-DD');
+    console.log('fourth', typeof dod);
+    const myDate = moment(doa, 'YYYY-MM-DD').toDate();
+    console.log('fifth', typeof myDate);
+
+    const existingUser = await this.userRepo.find({});
+    console.log('asdad', typeof existingUser[0].created_at);
+
+    if (!existingUser) {
+      throw new BadRequestException('User does ot exist!');
+    }
     return existingUser;
   }
 

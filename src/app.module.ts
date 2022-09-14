@@ -26,6 +26,7 @@ require('dotenv').config();
       },
     }),
     TypeOrmModule.forRoot({
+      timezone: 'UTC',
       type: 'mysql',
       host: process.env.DB_HOST,
       port: 3306,

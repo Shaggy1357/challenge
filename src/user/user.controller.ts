@@ -49,6 +49,7 @@ export class UserController {
     @UploadedFile()
     file: Express.Multer.File,
   ): Promise<CreateUser> {
+    // console.log('first');
     return await this.usersService.register(createUserDto, file);
   }
 
@@ -104,6 +105,14 @@ export class UserController {
   @Patch('/updateAddress')
   async updateAddress(@Body() body: UpdateAddress, @User() user) {
     return this.usersService.UPDATE(body, body.id, user.userId);
+  }
+
+  //Finding users by date of creation
+  @UseGuards(JwtAuthGuard)
+  @Get('/find-by-date/:doc')
+  async findByDate(@Param('doc') doc: Date): Promise<Users[]> {
+    console.log('first', doc);
+    return this.usersService.findbydate(doc);
   }
 
   //logout api

@@ -10,7 +10,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  app.useGlobalInterceptors(new ErrorsInterceptor());
+  // app.useGlobalInterceptors(new ErrorsInterceptor());
   await app.listen(3000);
 }
 bootstrap();
