@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Users } from '../entities/users.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CreateUser } from '../dtos/createUser.dto';
@@ -15,6 +15,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 // var moment = require('moment');
 import 'moment-timezone';
 import * as moment from 'moment';
+import { responseMap, success } from '../generics/genericResponse';
 
 // import { RedisService } from '../redis/redis.service';
 @Injectable()
@@ -37,7 +38,7 @@ export class UserService {
   async register(
     createUserDto: CreateUser,
     file: Express.Multer.File,
-  ): Promise<CreateUser> {
+  ): Promise<success> {
     // try {
     //Checking if a user already exists.
     // console.log('second');
@@ -63,9 +64,9 @@ export class UserService {
       newUser.profilephoto = file.filename;
     }
 
-    const m = moment().toDate();
-    console.log('first', m);
-    console.log('second', typeof m);
+    // const m = moment().toDate();
+    // console.log('first', m);
+    // console.log('second', typeof m);
 
     // newUser.created_at_date = m.toDateString();
     // Sending a mail to user after successfull registration.
@@ -82,7 +83,7 @@ export class UserService {
     // //Saving the user in DB.
     await this.userRepo.save(newUser);
     // console.log('second');
-    return newUser;
+    return responseMap(newUser, 'success!');
     // } catch (error) {
     //   console.log(error);
     // }
@@ -105,25 +106,25 @@ export class UserService {
 
   //Helper function to find user by date.
   async findbydate(doc: Date): Promise<Users[]> {
-    // console.log('first', doc);
+    console.log('second', doc);
 
-    // console.log('second', typeof doc);
+    console.log('third', typeof doc);
 
     const doa = moment(doc).tz('Asia/Kolkata');
-    console.log('third', doa);
+    console.log('fourth', doa);
 
     const dod = doa.format('YYYY-MM-DD');
-    console.log('fourth', typeof dod);
-    const myDate = moment(doa, 'YYYY-MM-DD').toDate();
-    console.log('fifth', typeof myDate);
+    console.log('fifth', typeof dod);
+    // const myDate = moment(doa, 'YYYY-MM-DD').toDate();
+    // console.log('fifth', typeof myDate);
 
     const existingUser = await this.userRepo.find({});
-    console.log('asdad', typeof existingUser[0].created_at);
+    console.log('sixth', typeof existingUser[0].created_at);
 
-    if (!existingUser) {
-      throw new BadRequestException('User does ot exist!');
-    }
-    return existingUser;
+    // if (!existingUser) {
+    //   throw new BadRequestException('User does ot exist!');
+    // }
+    return;
   }
 
   //Update user function.
