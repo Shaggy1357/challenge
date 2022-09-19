@@ -15,7 +15,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 // var moment = require('moment');
 import 'moment-timezone';
 import * as moment from 'moment';
-import { responseMap, success } from '../generics/genericResponse';
+import { global, responseMap, success } from '../generics/genericResponse';
+import { JwtService } from '@nestjs/jwt';
 
 // import { RedisService } from '../redis/redis.service';
 @Injectable()
@@ -27,6 +28,7 @@ export class UserService {
     @InjectRepository(AddressBook) private addressRepo: Repository<AddressBook>,
     @InjectRepository(BlackList) private blackListRepo: Repository<BlackList>,
     private mailerService: MailerService,
+    private jwtservice: JwtService,
   ) {}
 
   @Cron(CronExpression.EVERY_QUARTER)
@@ -35,10 +37,7 @@ export class UserService {
   }
 
   //Registration
-  async register(
-    createUserDto: CreateUser,
-    file: Express.Multer.File,
-  ): Promise<success> {
+  async register(createUserDto: CreateUser, file: Express.Multer.File): global {
     // try {
     //Checking if a user already exists.
     // console.log('second');
@@ -83,7 +82,19 @@ export class UserService {
     // //Saving the user in DB.
     await this.userRepo.save(newUser);
     // console.log('second');
-    return responseMap(newUser, 'success!');
+    const payload = {
+      userId: newUser.id,
+      userEmail: newUser.email,
+    };
+    //Returning the token after successfull login.
+
+    return responseMap({
+      newUser,
+      access_token: this.jwtservice.sign(payload, {
+        expiresIn: '1h',
+        secret: process.env.JWT_SECRET,
+      }),
+    });
     // } catch (error) {
     //   console.log(error);
     // }

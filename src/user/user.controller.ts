@@ -24,7 +24,7 @@ import { UpdateUser } from '../dtos/UpdateUser.dto';
 import { Users } from '../entities/users.entity';
 import { UserService } from './user.service';
 import { Jwt } from '../decorators/jwt.decorator';
-import { success } from '../generics/genericResponse';
+import { global, success } from '../generics/genericResponse';
 
 export const Storage = {
   storage: diskStorage({
@@ -43,6 +43,7 @@ export class UserController {
 
   //Using interceptors for fetching files
   //Registration api
+  // @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(FileInterceptor('file', Storage))
   @Post('/register')
@@ -50,7 +51,7 @@ export class UserController {
     @Body() createUserDto: CreateUser,
     @UploadedFile()
     file: Express.Multer.File,
-  ): Promise<success> {
+  ): global {
     // console.log('first');
     return await this.usersService.register(createUserDto, file);
   }
