@@ -7,9 +7,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
 import { GoogleStrategy } from './utils/GoogleStrategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { GoogleUsers } from '../entities/GoogleUsers.entity';
+import { SessionSerializer } from './utils/Serializer';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([GoogleUsers]),
     PassportModule,
     UserModule,
     JwtModule.registerAsync({
@@ -20,7 +24,7 @@ import { GoogleStrategy } from './utils/GoogleStrategy';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, JwtStrategy, GoogleStrategy],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, SessionSerializer],
   controllers: [AuthController],
   exports: [AuthService],
 })

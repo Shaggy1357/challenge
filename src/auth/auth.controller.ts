@@ -1,8 +1,11 @@
 import { Get, Post, UseGuards } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Strategy } from 'passport-google-oauth20';
 import { AuthLogin } from '../dtos/AuthLogin.dto';
 import { AuthService } from './auth.service';
+import { GoogleStrategy } from './utils/GoogleStrategy';
 import { GoogleAuthGuard } from './utils/GoogleAuthGuard';
 
 @Controller('auth')
@@ -16,13 +19,13 @@ export class AuthController {
 
   //Handles login routes.
   //Send user details in the form of a DTO to the auth service.
-  @UseGuards(GoogleAuthGuard)
   @Get('google/login')
+  @UseGuards(AuthGuard('google'))
   async Login() {}
 
   //Redirect endpoint
-  @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
+  @UseGuards(AuthGuard('google'))
   async HandleRedirect() {
     return { msg: 'OK!' };
   }

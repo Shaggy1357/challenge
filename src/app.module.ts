@@ -10,6 +10,8 @@ import { AddressBook } from './entities/addressBook.entity';
 // import { RedisModule } from './redis/redis.module';
 import { BlackList } from './entities/blacklist.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { GoogleUsers } from './entities/GoogleUsers.entity';
+import { PassportModule } from '@nestjs/passport';
 
 require('dotenv').config();
 
@@ -25,6 +27,7 @@ require('dotenv').config();
         },
       },
     }),
+    PassportModule.register({ session: true }),
     TypeOrmModule.forRoot({
       timezone: 'UTC',
       type: 'mysql',
@@ -33,7 +36,7 @@ require('dotenv').config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Users, AddressBook, BlackList],
+      entities: [Users, AddressBook, BlackList, GoogleUsers],
       synchronize: true,
     }),
     UserModule,
