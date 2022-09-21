@@ -58,4 +58,8 @@ export class AuthService {
     const user = await this.googleUsers.findOneBy({ id });
     return user;
   }
+
+  async Login(user) {
+    return user;
+  }
 }

@@ -1,12 +1,13 @@
-import { Get, Post, UseGuards } from '@nestjs/common';
+import { Get, Post, Req, UseGuards } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Strategy } from 'passport-google-oauth20';
+// import { Strategy } from 'passport-google-oauth20';
 import { AuthLogin } from '../dtos/AuthLogin.dto';
 import { AuthService } from './auth.service';
-import { GoogleStrategy } from './utils/GoogleStrategy';
-import { GoogleAuthGuard } from './utils/GoogleAuthGuard';
+// import { GoogleStrategy } from './utils/GoogleStrategy';
+// import { GoogleAuthGuard } from './utils/GoogleAuthGuard';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -21,12 +22,24 @@ export class AuthController {
   //Send user details in the form of a DTO to the auth service.
   @Get('google/login')
   @UseGuards(AuthGuard('google'))
-  async Login() {}
+  async Login() {
+    // console.log('second', user);
+  }
 
   //Redirect endpoint
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
-  async HandleRedirect() {
-    return { msg: 'OK!' };
+  async HandleRedirect(@Req() req: Request) {
+    console.log('second', req.user);
+    const user = req.user;
+    return this.authService.Login(user);
   }
+
+  @Get('microsoft/login')
+  @UseGuards(AuthGuard('azure-ad'))
+  async MicrosftLogin() {}
+
+  @Get('microsoft/redirect')
+  @UseGuards(AuthGuard('azure-ad'))
+  async HandleMicRedirect() {}
 }
