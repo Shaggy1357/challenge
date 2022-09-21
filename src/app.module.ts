@@ -12,7 +12,7 @@ import { BlackList } from './entities/blacklist.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { GoogleUsers } from './entities/GoogleUsers.entity';
 import { PassportModule } from '@nestjs/passport';
-import { AzureADStrategy } from './auth/utils/Azure.guard';
+import { AzureADStrategy } from './auth/utils/Azure.strategy';
 
 require('dotenv').config();
 

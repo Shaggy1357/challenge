@@ -10,6 +10,7 @@ import { GoogleStrategy } from './utils/GoogleStrategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GoogleUsers } from '../entities/GoogleUsers.entity';
 import { SessionSerializer } from './utils/Serializer';
+import { AzureADStrategy } from './utils/Azure.strategy';
 
 @Module({
   imports: [
@@ -24,7 +25,13 @@ import { SessionSerializer } from './utils/Serializer';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, JwtStrategy, GoogleStrategy, SessionSerializer],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    GoogleStrategy,
+    SessionSerializer,
+    AzureADStrategy,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })
