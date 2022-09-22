@@ -1,4 +1,4 @@
-import { Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -35,11 +35,18 @@ export class AuthController {
     return this.authService.Login(user);
   }
 
+  // @Get('.well-known/microsoft-identity-association.json')
+  // async microsoftJson(@Res() res) {
+  //   return this.authService.microsoftJson(res);
+  // }
+
   @Get('microsoft/login')
-  @UseGuards(AuthGuard('azure-ad'))
+  @UseGuards(AuthGuard('microsoft'))
   async MicrosftLogin() {}
 
   @Get('microsoft/redirect')
-  @UseGuards(AuthGuard('azure-ad'))
-  async HandleMicRedirect() {}
+  @UseGuards(AuthGuard('microsoft'))
+  async HandleMicRedirect(@Req() req) {
+    return this.authService.microsoftLogin(req);
+  }
 }

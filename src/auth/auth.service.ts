@@ -62,4 +62,22 @@ export class AuthService {
   async Login(user) {
     return user;
   }
+
+  // async microsoftJson(res) {
+  //   res.writeHeader(200, { 'Content-Type': 'application/json' });
+  //   res.write(
+  //     JSON.stringify({
+  //       associatedApplicatons: [
+  //         {
+  //           applicationId: 'b29377a2-a48e-4b7a-b468-74fcc9a9694b',
+  //         },
+  //       ],
+  //     }),
+  //   );
+  //   res.end();
+  // }
+
+  async microsoftLogin(req) {
+    return req.user;
+  }
 }

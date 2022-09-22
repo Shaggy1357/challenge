@@ -45,7 +45,7 @@ require('dotenv').config();
     /*RedisModule,*/
   ],
   controllers: [AppController],
-  providers: [AppService, AzureADStrategy],
+  providers: [AppService],
   // exports: [],
 })
 export class AppModule {}
