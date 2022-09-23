@@ -11,10 +11,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GoogleUsers } from '../entities/GoogleUsers.entity';
 import { SessionSerializer } from './utils/Serializer';
 import { AzureADStrategy } from './utils/Azure.strategy';
+import { MicrosoftUsers } from '../entities/MicrosoftUsers.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([GoogleUsers]),
+    TypeOrmModule.forFeature([GoogleUsers, MicrosoftUsers]),
     PassportModule,
     UserModule,
     JwtModule.registerAsync({

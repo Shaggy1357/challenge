@@ -6,7 +6,8 @@ import { Repository } from 'typeorm';
 import { AuthLogin } from '../dtos/AuthLogin.dto';
 import { Users } from '../entities/users.entity';
 import { UserService } from '../user/user.service';
-import { UserDetails } from './utils/types';
+import { MicUserDetails, UserDetails } from './utils/types';
+import { MicrosoftUsers } from '../entities/MicrosoftUsers.entity';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,8 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     @InjectRepository(GoogleUsers) private googleUsers: Repository<GoogleUsers>,
+    @InjectRepository(MicrosoftUsers)
+    private microsoftUsers: Repository<MicrosoftUsers>,
   ) {}
 
   //Validates users by comparing their saved passwords and entered passwords.
@@ -43,7 +46,7 @@ export class AuthService {
     };
   }
 
-  async ValidateUser(details: UserDetails) {
+  async ValidateGoogleUser(details: UserDetails) {
     console.log(details);
     const user = await this.googleUsers.findOneBy({ email: details.email });
     console.log(user);
@@ -79,5 +82,16 @@ export class AuthService {
 
   async microsoftLogin(req) {
     return req.user;
+  }
+
+  async ValidateMicrosoftUser(details: MicUserDetails) {
+    console.log(details);
+    const user = await this.microsoftUsers.findOneBy({ email: details.email });
+    console.log(user);
+    if (user) {
+      return user;
+    }
+    const newUser = this.microsoftUsers.create(details);
+    return this.microsoftUsers.save(newUser);
   }
 }

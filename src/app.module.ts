@@ -13,6 +13,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { GoogleUsers } from './entities/GoogleUsers.entity';
 import { PassportModule } from '@nestjs/passport';
 import { AzureADStrategy } from './auth/utils/Azure.strategy';
+import { MicrosoftUsers } from './entities/MicrosoftUsers.entity';
 
 require('dotenv').config();
 
@@ -37,7 +38,7 @@ require('dotenv').config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Users, AddressBook, BlackList, GoogleUsers],
+      entities: [Users, AddressBook, BlackList, GoogleUsers, MicrosoftUsers],
       synchronize: true,
     }),
     UserModule,
