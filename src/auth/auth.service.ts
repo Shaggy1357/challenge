@@ -8,6 +8,7 @@ import { Users } from '../entities/users.entity';
 import { UserService } from '../user/user.service';
 import { MicUserDetails, UserDetails } from './utils/types';
 import { MicrosoftUsers } from '../entities/MicrosoftUsers.entity';
+import { StripeCustomers } from '../entities/StripeCustomers.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,8 @@ export class AuthService {
     @InjectRepository(GoogleUsers) private googleUsers: Repository<GoogleUsers>,
     @InjectRepository(MicrosoftUsers)
     private microsoftUsers: Repository<MicrosoftUsers>,
+    @InjectRepository(StripeCustomers)
+    private stripeCustomers: Repository<StripeCustomers>,
   ) {}
 
   //Validates users by comparing their saved passwords and entered passwords.

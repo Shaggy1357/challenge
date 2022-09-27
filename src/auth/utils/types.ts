@@ -9,3 +9,5 @@ export type MicUserDetails = {
   email: string;
   // picture: any;
 };
+
+export const STRIPE_CLIENT = 'STRIPE_CLIENT';

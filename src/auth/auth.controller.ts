@@ -1,4 +1,4 @@
-import { Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Get, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,10 +8,16 @@ import { AuthService } from './auth.service';
 // import { GoogleStrategy } from './utils/GoogleStrategy';
 // import { GoogleAuthGuard } from './utils/GoogleAuthGuard';
 import { Request } from 'express';
+import Stripe from 'stripe';
+import { STRIPE_CLIENT } from './utils/types';
+// import { AzureADGuard } from './utils/azureAd.strategy';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    @Inject(STRIPE_CLIENT) private stripe: Stripe,
+  ) {}
 
   @Post('login')
   async login(@Body() authLoginDto: AuthLogin) {
@@ -48,5 +54,16 @@ export class AuthController {
   @UseGuards(AuthGuard('microsoft'))
   async HandleMicRedirect(@Req() req) {
     return this.authService.microsoftLogin(req);
+  }
+
+  @Get('stripe')
+  listCustomers() {
+    const customers = this.stripe.customers.list();
+    // console.log(customers);
+
+    // const balance = this.stripe.balance.retrieve();
+    // console.log(balance);
+
+    return customers;
   }
 }

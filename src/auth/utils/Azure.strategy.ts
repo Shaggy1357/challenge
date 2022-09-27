@@ -54,6 +54,7 @@ export class AzureADStrategy extends PassportStrategy(Strategy, 'microsoft') {
     // console.log('accessToken', accessToken);
     // console.log('refreshToken', refreshToken);
     // console.log('first', profile);
+    console.log('request', req);
 
     const jsonProfile = refreshToken._json || {};
     console.log('refreshToken', jsonProfile);
@@ -64,7 +65,7 @@ export class AzureADStrategy extends PassportStrategy(Strategy, 'microsoft') {
     const user = await this.authService.ValidateMicrosoftUser({
       firstName: jsonProfile.givenName,
       lastName: jsonProfile.surname,
-      email: jsonProfile.userPrincipalName,
+      email: jsonProfile.mail,
       // access_token: accessToken,
       // picture: null,
     });

@@ -12,10 +12,11 @@ import { GoogleUsers } from '../entities/GoogleUsers.entity';
 import { SessionSerializer } from './utils/Serializer';
 import { AzureADStrategy } from './utils/Azure.strategy';
 import { MicrosoftUsers } from '../entities/MicrosoftUsers.entity';
+import { StripeCustomers } from '../entities/StripeCustomers.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([GoogleUsers, MicrosoftUsers]),
+    TypeOrmModule.forFeature([GoogleUsers, MicrosoftUsers, StripeCustomers]),
     PassportModule,
     UserModule,
     JwtModule.registerAsync({

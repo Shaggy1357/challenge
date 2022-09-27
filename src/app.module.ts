@@ -12,13 +12,15 @@ import { BlackList } from './entities/blacklist.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { GoogleUsers } from './entities/GoogleUsers.entity';
 import { PassportModule } from '@nestjs/passport';
-import { AzureADStrategy } from './auth/utils/Azure.strategy';
 import { MicrosoftUsers } from './entities/MicrosoftUsers.entity';
+import { StripeModule } from './stripe/stripe.module';
+import { StripeCustomers } from './entities/StripeCustomers.entity';
 
 require('dotenv').config();
 
 @Module({
   imports: [
+    StripeModule.forRoot(process.env.STRIPE_KEY, { apiVersion: '2022-08-01' }),
     ScheduleModule.forRoot(),
     MailerModule.forRoot({
       transport: {
@@ -38,11 +40,19 @@ require('dotenv').config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Users, AddressBook, BlackList, GoogleUsers, MicrosoftUsers],
+      entities: [
+        Users,
+        AddressBook,
+        BlackList,
+        GoogleUsers,
+        MicrosoftUsers,
+        StripeCustomers,
+      ],
       synchronize: true,
     }),
     UserModule,
     AuthModule,
+    StripeModule,
     /*RedisModule,*/
   ],
   controllers: [AppController],
