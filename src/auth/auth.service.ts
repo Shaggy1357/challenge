@@ -97,4 +97,23 @@ export class AuthService {
     const newUser = this.microsoftUsers.create(details);
     return this.microsoftUsers.save(newUser);
   }
+
+  async stripeRegister(body, newUser) {
+    console.log('body', body);
+    console.log('newUser', newUser);
+    const user = await this.stripeCustomers.create({
+      ...body,
+      stripeId: newUser.id,
+    });
+    // // const user1 = await this.stripeCustomers.save({
+    // //   ...newUser,
+    // //   stripeId: newUser.id,
+    // // });
+    console.log('user', user);
+    return this.stripeCustomers.save(user);
+  }
+
+  async createPayment(amount) {
+    return;
+  }
 }

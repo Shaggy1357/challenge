@@ -7,7 +7,7 @@ import { AuthLogin } from '../dtos/AuthLogin.dto';
 import { AuthService } from './auth.service';
 // import { GoogleStrategy } from './utils/GoogleStrategy';
 // import { GoogleAuthGuard } from './utils/GoogleAuthGuard';
-import { Request } from 'express';
+import e, { Request } from 'express';
 import Stripe from 'stripe';
 import { STRIPE_CLIENT } from './utils/types';
 // import { AzureADGuard } from './utils/azureAd.strategy';
@@ -65,5 +65,33 @@ export class AuthController {
     // console.log(balance);
 
     return customers;
+  }
+
+  @Post('stripe/register')
+  async stripeUser(@Body() body) {
+    // console.log('first', body);
+    const name = body.name;
+    // console.log('name', name);
+
+    const email = body.email;
+    // console.log('email', email);
+
+    const newUser = await this.stripe.customers.create({ name, email });
+    // console.log(newUser);
+    return this.authService.stripeRegister(body, newUser);
+  }
+
+  @Post('stripe/payment')
+  async createPayments(@Body() amount, paymentMethodId, stripeId) {
+    // console.log('amount', amount);
+    // console.log(amount.amount);
+
+    const payment = await this.stripe.paymentIntents.create({
+      amount: amount.amount,
+      currency: 'USD',
+    });
+    console.log('payment', payment);
+
+    return this.authService.createPayment(payment);
   }
 }

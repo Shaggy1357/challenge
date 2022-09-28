@@ -7,6 +7,9 @@ export class StripeCustomers {
   id: number;
 
   @Column()
+  stripeId: string;
+
+  @Column()
   name: string;
 
   @Column({ unique: true })
