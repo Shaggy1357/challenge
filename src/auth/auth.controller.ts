@@ -7,7 +7,7 @@ import { AuthLogin } from '../dtos/AuthLogin.dto';
 import { AuthService } from './auth.service';
 // import { GoogleStrategy } from './utils/GoogleStrategy';
 // import { GoogleAuthGuard } from './utils/GoogleAuthGuard';
-import e, { Request } from 'express';
+import { Request } from 'express';
 import Stripe from 'stripe';
 import { STRIPE_CLIENT } from './utils/types';
 // import { AzureADGuard } from './utils/azureAd.strategy';
@@ -67,6 +67,11 @@ export class AuthController {
     return customers;
   }
 
+  // @Get('stripe/findone')
+  // findone(){
+  //   const customer = this.stripe.customers.createSource()
+  // }
+
   @Post('stripe/register')
   async stripeUser(@Body() body) {
     // console.log('first', body);
@@ -76,22 +81,91 @@ export class AuthController {
     const email = body.email;
     // console.log('email', email);
 
-    const newUser = await this.stripe.customers.create({ name, email });
+    const newUser = await this.stripe.customers.create({
+      name,
+      email,
+    });
     // console.log(newUser);
     return this.authService.stripeRegister(body, newUser);
   }
 
-  @Post('stripe/payment')
-  async createPayments(@Body() amount, paymentMethodId, stripeId) {
+  @Post('stripe/addcard')
+  async addcard(@Body() body) {
+    const cardToken = await this.stripe.tokens.create({
+      card: {
+        name: body.cardName,
+        number: body.cardNumber,
+        exp_month: body.exp_month,
+        exp_year: body.exp_year,
+        cvc: body.cvc,
+        address_country: body.address_country,
+        address_zip: body.address_zip,
+      },
+    });
+
+    const customerId = 'cus_MVvaPu6BXxteIZ';
+
+    const card = await this.stripe.customers.createSource(customerId, {
+      source: cardToken.id,
+    });
+    console.log(card.id);
+  }
+
+  @Post('stripe/createpaymentintent')
+  async createPayments(@Body() amount) {
     // console.log('amount', amount);
     // console.log(amount.amount);
 
     const payment = await this.stripe.paymentIntents.create({
       amount: amount.amount,
       currency: 'USD',
+      payment_method_types: ['card'],
     });
     console.log('payment', payment);
 
     return this.authService.createPayment(payment);
   }
+
+  @Post('stripe/retrievepaymentintent')
+  async retrievePayments() {
+    const payment = await this.stripe.paymentIntents.retrieve(
+      'pi_3LndUBSArpHYeS850Lf11biF',
+    );
+    return payment;
+  }
+
+  @Post('stripe/charge')
+  async charges(@Body() body) {
+    const name = body.name;
+
+    const email = body.email;
+    const newUser = await this.stripe.customers.create({ name, email });
+    // const customerId = 'cus_MVvaPu6BXxteIZ';
+    const cardToken = await this.stripe.tokens.create({
+      card: {
+        name: body.cardName,
+        number: body.cardNumber,
+        exp_month: body.exp_month,
+        exp_year: body.exp_year,
+        cvc: body.cvc,
+      },
+    });
+
+    // // // console.log(cardToken);
+
+    const card = await this.stripe.customers.createSource(newUser.id, {
+      source: cardToken.id,
+    });
+    const charge = await this.stripe.charges.create({
+      amount: 2000,
+      currency: 'usd',
+      description: 'First charge',
+      customer: newUser.id,
+      source: card.id,
+    });
+    return charge;
+  }
+
+  @Post('stripe/retrievecharge')
+  retrievecharge(@Body() body) {}
 }
