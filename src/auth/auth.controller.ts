@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { Request } from 'express';
 import Stripe from 'stripe';
 import { STRIPE_CLIENT } from './utils/types';
+import { createDecipheriv } from 'crypto';
 // import { AzureADGuard } from './utils/azureAd.strategy';
 
 @Controller('auth')
@@ -85,12 +86,8 @@ export class AuthController {
       name,
       email,
     });
-    // console.log(newUser);
-    return this.authService.stripeRegister(body, newUser);
-  }
 
-  @Post('stripe/addcard')
-  async addcard(@Body() body) {
+    const customerId = newUser.id;
     const cardToken = await this.stripe.tokens.create({
       card: {
         name: body.cardName,
@@ -103,13 +100,34 @@ export class AuthController {
       },
     });
 
-    const customerId = 'cus_MVvaPu6BXxteIZ';
-
     const card = await this.stripe.customers.createSource(customerId, {
       source: cardToken.id,
     });
-    console.log(card.id);
+    // console.log(newUser);
+    return this.authService.stripeRegister(body, newUser);
   }
+
+  // @Post('stripe/addcard')
+  // async addcard(@Body() body) {
+  //   const cardToken = await this.stripe.tokens.create({
+  //     card: {
+  //       name: body.cardName,
+  //       number: body.cardNumber,
+  //       exp_month: body.exp_month,
+  //       exp_year: body.exp_year,
+  //       cvc: body.cvc,
+  //       address_country: body.address_country,
+  //       address_zip: body.address_zip,
+  //     },
+  //   });
+
+  //   const customerId = 'cus_MVvaPu6BXxteIZ';
+
+  //   const card = await this.stripe.customers.createSource(customerId, {
+  //     source: cardToken.id,
+  //   });
+  //   console.log(card.id);
+  // }
 
   @Post('stripe/createpaymentintent')
   async createPayments(@Body() amount) {
@@ -156,16 +174,59 @@ export class AuthController {
     const card = await this.stripe.customers.createSource(newUser.id, {
       source: cardToken.id,
     });
-    const charge = await this.stripe.charges.create({
-      amount: 2000,
-      currency: 'usd',
-      description: 'First charge',
+    // const charge = await this.stripe.charges.create({
+    //   amount: 2000,
+    //   currency: 'usd',
+    //   receipt_email: newUser.email,
+    //   description: 'First charge',
+    //   customer: newUser.id,
+    //   source: card.id,
+    // });
+    const payment = await this.stripe.paymentIntents.create({
+      amount: body.amount,
+      currency: 'USD',
+      payment_method_types: ['card'],
+      payment_method: card.id,
       customer: newUser.id,
-      source: card.id,
+      description: 'First payment',
+      // payment_method: card.id,
+      capture_method: 'automatic',
+      confirm: true,
+      confirmation_method: 'automatic',
     });
-    return charge;
+    return payment;
   }
 
   @Post('stripe/retrievecharge')
-  retrievecharge(@Body() body) {}
+  async retrievecharge(@Body() body) {
+    const cardToken = await this.stripe.tokens.create({
+      card: {
+        name: body.cardName,
+        number: body.cardNumber,
+        exp_month: body.exp_month,
+        exp_year: body.exp_year,
+        cvc: body.cvc,
+      },
+    });
+    const paymentId = body.payment_intendId;
+
+    const payment = await this.stripe.paymentIntents.retrieve(paymentId);
+
+    const secret = payment.client_secret;
+
+    console.log('secret', secret);
+
+    const paymentIntent = await this.stripe.paymentIntents.confirm(paymentId);
+
+    // const capturepayment = await this.stripe.paymentIntents.capture(paymentId);
+    // console.log(paymentIntent);
+
+    return paymentIntent;
+  }
+
+  @Post('stripe/confirmcharge')
+  async confirmpayment(@Body() body) {
+    const paymentId = body.paymentId;
+    const capturepayment = await this.stripe.paymentIntents.capture(paymentId);
+  }
 }
