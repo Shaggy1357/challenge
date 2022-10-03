@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express-serve-static-core';
-import { BearerStrategy } from 'passport-azure-ad';
+// import { BearerStrategy } from 'passport-azure-ad';
 import { VerifiedCallback } from 'passport-jwt';
 import { Strategy } from 'passport-microsoft';
 import { AuthService } from '../auth.service';
@@ -22,7 +22,8 @@ export class AzureADStrategy extends PassportStrategy(Strategy, 'microsoft') {
       resource: process.env.MIC_CLIENT_SECRET,
       tenant: process.env.TENANT,
       callbackURL: process.env.MIC_CALLBACK_URL,
-      scope: ['user.read', 'user.read.all'],
+      passReqToCallback: true,
+      scope: ['user.read', 'user.read.all', 'user.readwrite.all'],
       prompt: 'select_account',
     });
   }
@@ -44,34 +45,66 @@ export class AzureADStrategy extends PassportStrategy(Strategy, 'microsoft') {
     }
   }
 
+  // async validate(
+  //   req: any,
+  //   accessToken: string,
+  //   refreshToken: any,
+  //   profile: any,
+  //   done: VerifiedCallback,
+  // ): Promise<any> {
+  //   // console.log('accessToken', accessToken);
+  //   // console.log('refreshToken', refreshToken);
+  //   // console.log('first', profile);
+  //   console.log('request', req);
+
+  //   const jsonProfile = refreshToken._json || {};
+  //   console.log('refreshToken', jsonProfile);
+  //   console.log('typeof', typeof refreshToken);
+
+  //   // const user =
+
+  //   const user = await this.authService.ValidateMicrosoftUser({
+  //     firstName: jsonProfile.givenName,
+  //     lastName: jsonProfile.surname,
+  //     email: jsonProfile.mail,
+  //     // access_token: accessToken,
+  //     // picture: null,
+  //   });
+  //   console.log('third', user);
+
+  //   return user;
+  //   // done(null, user);
+  // }
+
   async validate(
     req: any,
     accessToken: string,
-    refreshToken: any,
+    refreshToken: string,
     profile: any,
     done: VerifiedCallback,
   ): Promise<any> {
-    // console.log('accessToken', accessToken);
-    // console.log('refreshToken', refreshToken);
-    // console.log('first', profile);
-    console.log('request', req);
+    // console.log('request', req);
+    console.log('access token', accessToken);
+    console.log('refresh token', refreshToken);
+    console.log('profile', profile);
 
-    const jsonProfile = refreshToken._json || {};
-    console.log('refreshToken', jsonProfile);
-    console.log('typeof', typeof refreshToken);
+    const jsonProfile = (profile && profile._json) || {};
 
-    // const user =
+    console.log('jsonProfile', jsonProfile);
 
-    const user = await this.authService.ValidateMicrosoftUser({
+    const user = {
       firstName: jsonProfile.givenName,
       lastName: jsonProfile.surname,
       email: jsonProfile.mail,
-      // access_token: accessToken,
-      // picture: null,
-    });
-    console.log('third', user);
+      access_token: accessToken,
+      picture: null,
+    };
 
+    console.log(user);
     return user;
-    // done(null, user);
   }
+
+  // async getAccessToken(user) {
+  //   return user.access_token;
+  // }
 }

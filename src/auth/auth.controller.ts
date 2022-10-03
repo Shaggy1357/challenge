@@ -10,7 +10,6 @@ import { AuthService } from './auth.service';
 import { Request } from 'express';
 import Stripe from 'stripe';
 import { STRIPE_CLIENT } from './utils/types';
-import { createDecipheriv } from 'crypto';
 // import { AzureADGuard } from './utils/azureAd.strategy';
 
 @Controller('auth')
@@ -56,6 +55,12 @@ export class AuthController {
   async HandleMicRedirect(@Req() req) {
     return this.authService.microsoftLogin(req);
   }
+
+  // @Get('microsoft/photo')
+  // @UseGuards(AuthGuard('microsoft'))
+  // async photo() {
+  //   return this.authService.getphoto();
+  // }
 
   @Get('stripe')
   listCustomers() {
@@ -270,5 +275,10 @@ export class AuthController {
   async confirmpayment(@Body() body) {
     const paymentId = body.paymentId;
     const capturepayment = await this.stripe.paymentIntents.capture(paymentId);
+  }
+
+  @Post('twilio/message')
+  async sendMessage(@Body() body) {
+    return this.authService.message(body);
   }
 }

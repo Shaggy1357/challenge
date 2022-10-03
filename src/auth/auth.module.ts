@@ -13,9 +13,14 @@ import { SessionSerializer } from './utils/Serializer';
 import { AzureADStrategy } from './utils/Azure.strategy';
 import { MicrosoftUsers } from '../entities/MicrosoftUsers.entity';
 import { StripeCustomers } from '../entities/StripeCustomers.entity';
+import { TwilioModule } from 'nestjs-twilio';
 
 @Module({
   imports: [
+    TwilioModule.forRoot({
+      accountSid: process.env.TWILIO_SID,
+      authToken: process.env.TWILIO_AUTH,
+    }),
     TypeOrmModule.forFeature([GoogleUsers, MicrosoftUsers, StripeCustomers]),
     PassportModule,
     UserModule,

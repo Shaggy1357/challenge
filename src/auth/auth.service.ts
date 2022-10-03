@@ -9,10 +9,24 @@ import { UserService } from '../user/user.service';
 import { MicUserDetails, UserDetails } from './utils/types';
 import { MicrosoftUsers } from '../entities/MicrosoftUsers.entity';
 import { StripeCustomers } from '../entities/StripeCustomers.entity';
+import { TwilioService } from 'nestjs-twilio';
+import {
+  AuthProvider,
+  AuthProviderCallback,
+  Client,
+  ClientOptions,
+  Options,
+} from '@microsoft/microsoft-graph-client';
+import { AzureADStrategy } from '../auth/utils/Azure.strategy';
 
+// export const clientOptions: ClientOptions = {
+//   authProvider: new AzureADStrategy(),
+// };
+// export const client = Client.init();
 @Injectable()
 export class AuthService {
   constructor(
+    private twilioService: TwilioService,
     private userService: UserService,
     private jwtService: JwtService,
     @InjectRepository(GoogleUsers) private googleUsers: Repository<GoogleUsers>,
@@ -98,9 +112,13 @@ export class AuthService {
     return this.microsoftUsers.save(newUser);
   }
 
+  // async getphoto(){
+  //   const photo = await client
+  // }
+
   async stripeRegister(body, newUser, receiptUrl) {
-    console.log('body', body);
-    console.log('newUser', newUser);
+    // console.log('body', body);
+    // console.log('newUser', newUser);
     const user = await this.stripeCustomers.create({
       ...body,
       stripeId: newUser.id,
@@ -110,11 +128,16 @@ export class AuthService {
     // //   ...newUser,
     // //   stripeId: newUser.id,
     // // });
-    console.log('user', user);
+    // console.log('user', user);
     return this.stripeCustomers.save(user);
   }
 
-  async createPayment(amount) {
-    return;
+  async message(body) {
+    const phone = body.number;
+    return this.twilioService.client.messages.create({
+      body: 'First Twilio Message',
+      to: phone,
+      from: process.env.TWILIO_PHONE_NUMBER,
+    });
   }
 }
