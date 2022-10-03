@@ -20,7 +20,9 @@ require('dotenv').config();
 
 @Module({
   imports: [
-    StripeModule.forRoot(process.env.STRIPE_KEY, { apiVersion: '2022-08-01' }),
+    StripeModule.forRoot(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2022-08-01',
+    }),
     ScheduleModule.forRoot(),
     MailerModule.forRoot({
       transport: {

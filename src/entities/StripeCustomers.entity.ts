@@ -15,4 +15,7 @@ export class StripeCustomers {
   @Column({ unique: true })
   @IsEmail()
   email: string;
+
+  @Column()
+  receiptURL: string;
 }

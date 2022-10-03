@@ -98,12 +98,13 @@ export class AuthService {
     return this.microsoftUsers.save(newUser);
   }
 
-  async stripeRegister(body, newUser) {
+  async stripeRegister(body, newUser, receiptUrl) {
     console.log('body', body);
     console.log('newUser', newUser);
     const user = await this.stripeCustomers.create({
       ...body,
       stripeId: newUser.id,
+      receiptURL: receiptUrl,
     });
     // // const user1 = await this.stripeCustomers.save({
     // //   ...newUser,
