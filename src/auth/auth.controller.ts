@@ -53,6 +53,8 @@ export class AuthController {
   @Get('microsoft/redirect')
   @UseGuards(AuthGuard('microsoft'))
   async HandleMicRedirect(@Req() req) {
+    console.log('request', req.query.code);
+
     return this.authService.microsoftLogin(req);
   }
 

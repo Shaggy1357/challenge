@@ -10,19 +10,17 @@ import { MicUserDetails, UserDetails } from './utils/types';
 import { MicrosoftUsers } from '../entities/MicrosoftUsers.entity';
 import { StripeCustomers } from '../entities/StripeCustomers.entity';
 import { TwilioService } from 'nestjs-twilio';
-import {
-  AuthProvider,
-  AuthProviderCallback,
-  Client,
-  ClientOptions,
-  Options,
-} from '@microsoft/microsoft-graph-client';
-import { AzureADStrategy } from '../auth/utils/Azure.strategy';
+import { Client } from '@microsoft/microsoft-graph-client';
+import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials';
+import { AuthorizationCodeCredential } from '@azure/identity';
+require('dotenv').config();
 
-// export const clientOptions: ClientOptions = {
-//   authProvider: new AzureADStrategy(),
-// };
-// export const client = Client.init();
+const credential = new AuthorizationCodeCredential(
+  process.env.TENANT,
+  process.env.MICROSOFT_CLIENT_ID,
+  '<AUTH_CODE_FROM_QUERY_PARAMETERS>',
+  process.env.MIC_CALLBACK_URL,
+);
 @Injectable()
 export class AuthService {
   constructor(
@@ -113,7 +111,7 @@ export class AuthService {
   }
 
   // async getphoto(){
-  //   const photo = await client
+  //   const photo
   // }
 
   async stripeRegister(body, newUser, receiptUrl) {

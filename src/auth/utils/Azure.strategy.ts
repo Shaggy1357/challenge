@@ -103,8 +103,4 @@ export class AzureADStrategy extends PassportStrategy(Strategy, 'microsoft') {
     console.log(user);
     return user;
   }
-
-  // async getAccessToken(user) {
-  //   return user.access_token;
-  // }
 }
