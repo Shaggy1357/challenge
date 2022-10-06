@@ -13,14 +13,16 @@ import { TwilioService } from 'nestjs-twilio';
 import { Client } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials';
 import { AuthorizationCodeCredential } from '@azure/identity';
+// import 'isomorphic-fetch';
+require('isomorphic-fetch');
 require('dotenv').config();
 
-const credential = new AuthorizationCodeCredential(
-  process.env.TENANT,
-  process.env.MICROSOFT_CLIENT_ID,
-  '<AUTH_CODE_FROM_QUERY_PARAMETERS>',
-  process.env.MIC_CALLBACK_URL,
-);
+// const credential = new AuthorizationCodeCredential(
+//   process.env.TENANT,
+//   process.env.MICROSOFT_CLIENT_ID,
+//   '<AUTH_CODE_FROM_QUERY_PARAMETERS>',
+//   process.env.MIC_CALLBACK_URL,
+// );
 @Injectable()
 export class AuthService {
   constructor(
@@ -96,6 +98,27 @@ export class AuthService {
   // }
 
   async microsoftLogin(req) {
+    // console.log('request', req.query.code);
+    // const credential = new AuthorizationCodeCredential(
+    //   process.env.TENANT,
+    //   process.env.MICROSOFT_CLIENT_ID,
+    //   req.query.code,
+    //   process.env.MIC_CALLBACK_URL,
+    // );
+    // // console.log('credential', credential);
+
+    // const AuthProvider = new TokenCredentialAuthenticationProvider(credential, {
+    //   scopes: ['user.read', 'user.read.all', 'user.readwrite.all'],
+    // });
+    // const client = Client.initWithMiddleware({ authProvider: AuthProvider });
+    // // console.log('client', client);
+
+    // const user = await client
+    //   .api('/me')
+    //   .select(['givenName', 'surname', 'mail'])
+    //   .get();
+    // console.log('user', user);
+
     return req.user;
   }
 
