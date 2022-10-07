@@ -232,44 +232,7 @@ export class AuthController {
 
   @Post('stripe/createcharge')
   async createcharge(@Body() body) {
-    const name = body.name;
-
-    const email = body.email;
-    const newUser = await this.stripe.customers.create({
-      name,
-      email,
-      address: {
-        city: 'pune',
-        country: 'India',
-        line1: 'asdf',
-        postal_code: '424242',
-        state: 'Gujarat',
-      },
-    });
-    const cardToken = await this.stripe.tokens.create({
-      card: {
-        name: body.cardName,
-        number: body.cardNumber,
-        exp_month: body.exp_month,
-        exp_year: body.exp_year,
-        cvc: body.cvc,
-      },
-    });
-    const card = await this.stripe.customers.createSource(newUser.id, {
-      source: cardToken.id,
-    });
-    const charge = await this.stripe.charges.create({
-      amount: 200,
-      currency: 'inr',
-      source: card.id,
-      description: 'First charge',
-      customer: newUser.id,
-      receipt_email: newUser.email,
-    });
-
-    const receiptUrl = charge.receipt_url;
-
-    return this.authService.stripeRegister(body, newUser, receiptUrl);
+    return this.authService.stripeRegister(body);
   }
 
   @Post('stripe/confirmcharge')

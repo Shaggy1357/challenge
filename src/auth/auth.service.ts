@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GoogleUsers } from '../entities/GoogleUsers.entity';
@@ -10,6 +10,8 @@ import { MicUserDetails, UserDetails } from './utils/types';
 import { MicrosoftUsers } from '../entities/MicrosoftUsers.entity';
 import { StripeCustomers } from '../entities/StripeCustomers.entity';
 import { TwilioService } from 'nestjs-twilio';
+import Stripe from 'stripe';
+import { STRIPE_CLIENT } from './utils/types';
 import { Client } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials';
 import { AuthorizationCodeCredential } from '@azure/identity';
@@ -34,6 +36,7 @@ export class AuthService {
     private microsoftUsers: Repository<MicrosoftUsers>,
     @InjectRepository(StripeCustomers)
     private stripeCustomers: Repository<StripeCustomers>,
+    @Inject(STRIPE_CLIENT) private stripe: Stripe,
   ) {}
 
   //Validates users by comparing their saved passwords and entered passwords.
@@ -137,19 +140,62 @@ export class AuthService {
   //   const photo
   // }
 
-  async stripeRegister(body, newUser, receiptUrl) {
-    // console.log('body', body);
-    // console.log('newUser', newUser);
+  // async stripeRegister(body, newUser, receiptUrl) {
+  //   // console.log('body', body);
+  //   // console.log('newUser', newUser);
+  //   const user = await this.stripeCustomers.create({
+  //     ...body,
+  //     stripeId: newUser.id,
+  //     receiptURL: receiptUrl,
+  //   });
+  //   // // const user1 = await this.stripeCustomers.save({
+  //   // //   ...newUser,
+  //   // //   stripeId: newUser.id,
+  //   // // });
+  //   // console.log('user', user);
+  //   return this.stripeCustomers.save(user);
+  // }
+
+  async stripeRegister(body) {
+    const name = body.name;
+    const email = body.email;
+    const newUser = await this.stripe.customers.create({
+      name,
+      email,
+      address: {
+        city: 'pune',
+        country: 'India',
+        line1: 'asdf',
+        postal_code: '424242',
+        state: 'Gujarat',
+      },
+    });
+    const cardToken = await this.stripe.tokens.create({
+      card: {
+        name: body.cardName,
+        number: body.cardNumber,
+        exp_month: body.exp_month,
+        exp_year: body.exp_year,
+        cvc: body.cvc,
+      },
+    });
+    const card = await this.stripe.customers.createSource(newUser.id, {
+      source: cardToken.id,
+    });
+    const charge = await this.stripe.charges.create({
+      amount: 200,
+      currency: 'inr',
+      source: card.id,
+      description: 'First charge',
+      customer: newUser.id,
+      receipt_email: newUser.email,
+    });
+    const receiptUrl = charge.receipt_url;
     const user = await this.stripeCustomers.create({
       ...body,
       stripeId: newUser.id,
       receiptURL: receiptUrl,
     });
-    // // const user1 = await this.stripeCustomers.save({
-    // //   ...newUser,
-    // //   stripeId: newUser.id,
-    // // });
-    // console.log('user', user);
     return this.stripeCustomers.save(user);
   }
 
