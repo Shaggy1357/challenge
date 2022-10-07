@@ -245,4 +245,14 @@ export class AuthController {
   async sendMessage(@Body() body) {
     return this.authService.message(body);
   }
+
+  @Post('twilio/sendOTP')
+  async sendCode(@Body() body) {
+    return this.authService.sendcode(body);
+  }
+
+  @Post('twilio/verifyOTP')
+  async verifyCode(@Body() body) {
+    return this.authService.verifyCode(body);
+  }
 }

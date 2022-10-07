@@ -1,4 +1,9 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GoogleUsers } from '../entities/GoogleUsers.entity';
@@ -157,6 +162,7 @@ export class AuthService {
   // }
 
   async stripeRegister(body) {
+    const amount = body.amount;
     const name = body.name;
     const email = body.email;
     const newUser = await this.stripe.customers.create({
@@ -183,7 +189,7 @@ export class AuthService {
       source: cardToken.id,
     });
     const charge = await this.stripe.charges.create({
-      amount: 200,
+      amount: amount * 100,
       currency: 'inr',
       source: card.id,
       description: 'First charge',
@@ -206,5 +212,29 @@ export class AuthService {
       to: phone,
       from: process.env.TWILIO_PHONE_NUMBER,
     });
+  }
+
+  async sendcode(body) {
+    const phone = body.phone;
+    return this.twilioService.client.verify
+      .services(process.env.TWILIO_SERVICE_ID)
+      .verifications.create({
+        to: phone,
+        channel: 'sms',
+      });
+  }
+
+  async verifyCode(body) {
+    const phone = body.phone;
+    const code = body.code;
+    const result = await this.twilioService.client.verify
+      .services(process.env.TWILIO_SERVICE_ID)
+      .verificationChecks.create({ to: phone, code: code });
+
+    if (!result.valid || result.status !== 'approved') {
+      throw new BadRequestException('Wrong code provided!');
+    }
+
+    return result.status;
   }
 }
